@@ -1,39 +1,201 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# widget_validator
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+`widget_validator` A flexible Flutter form validator that adds validation and error handling to any custom input widget.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+ - Validation for any custom widget
+ - Widget-agnostic design
+ - Built-in error handling
+ - Flutter-idiomatic API
+ - Pluggable input widgets
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+To use this package, add widget_validator as a dependency in your pubspec.yaml file.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Minimal example:
 
 ```dart
-const like = 'sample';
+      WidgetValidator<String>(
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'This field is required' : null,
+                  inputBuilder: (value, onChanged) {
+                    return ChoiceChipGroup(
+                      data: ['A', 'B', 'C', 'D'],
+                      selected: value,
+                      onSelected: onChanged,
+                    );
+                  },
+                )
 ```
 
-## Additional information
+Custom settings:
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+       WidgetValidator<String>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  initialValue: 'B',
+                  errorStyle: TextStyle(),
+                  spacing: 8,
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'This field is required' : null,
+                  onSaved: (value) => _selectedChipValue = value,
+                  inputBuilder: (value, onChanged) {
+                    return ChoiceChipGroup(
+                      data: ['A', 'B', 'C', 'D'],
+                      selected: value,
+                      onSelected: onChanged,
+                    );
+                  },
+                ),
+```
+
+A Complete Example:
+
+```dart
+   class Homepage extends StatefulWidget {
+  const Homepage({super.key});
+
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  final formKey = GlobalKey<FormState>();
+  late final TextEditingController _selectedFieldValue;
+  double? _selectedSliderValue;
+  String? _selectedChipValue;
+  String? _selectedRadioValue;
+  String? _selectedDropDownValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedFieldValue = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _selectedFieldValue.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Widget Validator')),
+      body: Container(
+        padding: EdgeInsets.all(20),
+        alignment: Alignment.center,
+        height: double.maxFinite,
+        width: double.maxFinite,
+        decoration: BoxDecoration(border: Border.all()),
+        child: Form(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          key: formKey,
+          child: SizedBox(
+            width: 500,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 20,
+              children: [
+                TextFormField(
+                  controller: _selectedFieldValue,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Required' : null,
+                  decoration: InputDecoration(
+                    label: Text('Enter name'),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                WidgetValidator<double>(
+                  validator: (value) => value == null ? 'Required' : null,
+                  onSaved: (value) => _selectedSliderValue = value,
+                  inputBuilder: (value, onChanged) {
+                    return Slider(
+                      value: value ?? 0,
+                      onChanged: onChanged,
+                      min: 0,
+                      max: 100,
+                    );
+                  },
+                ),
+
+                WidgetValidator<String>(
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  initialValue: 'Friend',
+                  errorStyle: TextStyle(),
+                  spacing: 8,
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'This field is required' : null,
+                  onSaved: (value) => _selectedChipValue = value,
+                  inputBuilder: (value, onChanged) {
+                    return ChoiceChipGroup(
+                      data: ['Father', 'Mother', 'Sibling', 'Friend'],
+                      selected: value,
+                      onSelected: onChanged,
+                    );
+                  },
+                ),
+
+                WidgetValidator<String>(
+                  validator: (v) => v == null ? 'Please select one' : null,
+                  onSaved: (value) => _selectedRadioValue = value,
+                  inputBuilder: (value, onChanged) {
+                    return Column(
+                      children: ['A', 'B', 'C']
+                          .map(
+                            (e) => RadioListTile(
+                              value: e,
+                              groupValue: value,
+                              onChanged: onChanged,
+                              title: Text(e),
+                            ),
+                          )
+                          .toList(),
+                    );
+                  },
+                ),
+
+                WidgetValidator<String>(
+                  validator: (v) => v == null ? 'Please select relation' : null,
+                  onSaved: (value) => _selectedDropDownValue = value,
+                  inputBuilder: (value, onChanged) {
+                    return Dropdown<String>(
+                      hint: 'Select relation',
+                      items: const ['Father', 'Mother', 'Sibling', 'Friend'],
+                      value: value,
+                      onChanged: onChanged,
+                      labelBuilder: (e) => e,
+                    );
+                  },
+                ),
+
+                ElevatedButton(
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      formKey.currentState!.save();
+                      log(_selectedFieldValue.text);
+                      log(_selectedSliderValue.toString());
+                      log(_selectedChipValue.toString());
+                      log(_selectedRadioValue.toString());
+                      log(_selectedDropDownValue.toString());
+                    }
+                  },
+                  child: Text('Submit'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+
