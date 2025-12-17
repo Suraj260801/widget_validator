@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_validator/widget_validator.dart';
 
 main() {
-  Widget _wrapWithForm({required Widget child, GlobalKey<FormState>? formKey}) {
+  Widget wrapWithForm({required Widget child, GlobalKey<FormState>? formKey}) {
     return MaterialApp(
       home: Scaffold(
         body: Form(
@@ -31,7 +31,7 @@ main() {
     final formKey = GlobalKey<FormState>();
 
     await tester.pumpWidget(
-      _wrapWithForm(
+      wrapWithForm(
         formKey: formKey,
         child: WidgetValidator<String>(
           validator: (v) => v == null ? 'Required' : null,
@@ -59,7 +59,7 @@ main() {
     final formKey = GlobalKey<FormState>();
 
     await tester.pumpWidget(
-      _wrapWithForm(
+      wrapWithForm(
         formKey: formKey,
         child: WidgetValidator<String>(
           validator: (v) => v == null ? 'Required' : null,
@@ -95,7 +95,7 @@ testWidgets(
     String? savedValue;
 
     await tester.pumpWidget(
-      _wrapWithForm(
+      wrapWithForm(
         formKey: formKey,
         child: WidgetValidator<String>(
           validator: (v) => v == null ? 'Required' : null,
@@ -129,7 +129,7 @@ testWidgets(
     final formKey = GlobalKey<FormState>();
 
     await tester.pumpWidget(
-      _wrapWithForm(
+      wrapWithForm(
         formKey: formKey,
         child: WidgetValidator<String>(
           validator: (v) => v == null ? 'Required' : null,
@@ -158,7 +158,7 @@ testWidgets(
     String? savedValue;
 
     await tester.pumpWidget(
-      _wrapWithForm(
+      wrapWithForm(
         formKey: formKey,
         child: WidgetValidator<String>(
           validator: (v) => v == null ? 'Required' : null,
